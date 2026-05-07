@@ -152,37 +152,43 @@ def init_db():
             except Exception:
                 pass
 
-    if not User.query.filter_by(username='admin').first():
-        admin_pw = os.environ.get('ADMIN_PASSWORD', 'admin@123')
-        admin = User(username='admin', email='admin@localhost', role='admin')
-        admin.set_password(admin_pw)
-        db.session.add(admin)
-        for k, v in {
-            'site_name':        'IPA Scanner',
-            'require_login':    'false',
-            'allow_register':   'true',
-            'max_upload_mb':    '500',
-            'footer_text':      '© 2024 IPA Scanner',
-            'bank_name':        '',
-            'bank_account':     '',
-            'bank_owner':       '',
-            'bank_stc_secret':  '',
-            'contact_zalo':     '',
-            'contact_telegram': '',
-            'contact_email':    '',
-            'contact_website':  '',
-        }.items():
-            if not Setting.query.filter_by(key=k).first():
-                db.session.add(Setting(key=k, value=v))
+    from sqlalchemy.exc import IntegrityError as _IntegrityError
+
+    _default_settings = {
+        'site_name':        'IPA Scanner',
+        'require_login':    'false',
+        'allow_register':   'true',
+        'max_upload_mb':    '500',
+        'footer_text':      '© 2024 IPA Scanner',
+        'bank_name':        '',
+        'bank_account':     '',
+        'bank_owner':       '',
+        'bank_stc_secret':  '',
+        'contact_zalo':     '',
+        'contact_telegram': '',
+        'contact_email':    '',
+        'contact_website':  '',
+    }
+
+    try:
+        with db.session.no_autoflush:
+            if not User.query.filter_by(username='admin').first():
+                admin_pw = os.environ.get('ADMIN_PASSWORD', 'admin@123')
+                admin = User(username='admin', email='admin@localhost', role='admin')
+                admin.set_password(admin_pw)
+                db.session.add(admin)
+                print(f'✅  Admin tạo thành công → username: admin  password: {admin_pw}')
+            for k, v in _default_settings.items():
+                if not Setting.query.filter_by(key=k).first():
+                    db.session.add(Setting(key=k, value=v))
         db.session.commit()
-        print(f'✅  Admin tạo thành công → username: admin  password: {admin_pw}')
-    else:
-        for k, v in {
-            'allow_register': 'true',
-            'bank_name': '', 'bank_account': '', 'bank_owner': '', 'bank_stc_secret': '',
-        }.items():
-            if not Setting.query.filter_by(key=k).first():
-                db.session.add(Setting(key=k, value=v))
+    except _IntegrityError:
+        db.session.rollback()
+        # Another worker already created admin — just ensure settings exist
+        with db.session.no_autoflush:
+            for k, v in _default_settings.items():
+                if not Setting.query.filter_by(key=k).first():
+                    db.session.add(Setting(key=k, value=v))
         db.session.commit()
 
 
