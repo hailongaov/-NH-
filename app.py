@@ -1087,6 +1087,14 @@ def _render_install_html(scan):
   </div>
 </div>'''
 
+    # Pre-compute expressions containing backslashes (f-string restriction < Python 3.12)
+    icon_tag = (
+        '<img src="' + icon_src + '" class="app-icon" alt=""'
+        ' onerror="this.style.display=\'none\';document.getElementById(\'iconf\').style.display=\'block\'">'
+        if icon_src else ''
+    )
+    icon_fallback_attr = ' style="display:none"' if icon_src else ''
+
     return f'''<!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -1135,8 +1143,8 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans
 <div class="top-bar">📦 {site_name}</div>
 
 <div class="hero">
-  {'<img src="'+icon_src+'" class="app-icon" alt="" onerror="this.style.display=\'none\';document.getElementById(\'iconf\').style.display=\'block\'">' if icon_src else ''}
-  <div class="app-icon icon-fallback" id="iconf"{'style="display:none"' if icon_src else ''}>📱</div>
+  {icon_tag}
+  <div class="app-icon icon-fallback" id="iconf"{icon_fallback_attr}>📱</div>
   <div class="app-name">{scan.app_name or scan.filename}</div>
   <div class="app-version">{scan.version or '—'}</div>
   {profile_badge}
