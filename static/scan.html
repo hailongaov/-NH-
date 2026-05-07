@@ -163,13 +163,42 @@
 
     <!-- Edit Modal -->
     <div class="modal-bg" id="editModal" style="display:none" onclick="if(event.target===this)closeEdit()">
-        <div class="modal-box">
+        <div class="modal-box" style="max-width:460px">
             <div class="modal-title">✏️ Chỉnh sửa ứng dụng</div>
             <input type="hidden" id="editScanId">
+
+            <!-- Icon preview + upload -->
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+                <div id="editIconWrap" style="width:64px;height:64px;border-radius:16px;background:#1e1e38;border:2px dashed rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden;cursor:pointer;transition:.2s" onclick="document.getElementById('editIconFile').click()" title="Nhấn để đổi icon">
+                    <span id="editIconFallback">📱</span>
+                    <img id="editIconPreview" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:14px">
+                </div>
+                <div style="flex:1">
+                    <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px">Ảnh icon</div>
+                    <div style="font-size:12px;color:var(--text3);line-height:1.5">PNG/JPG, tối đa 3MB.<br>Nhấn vào icon để thay đổi.</div>
+                    <input type="file" id="editIconFile" accept="image/png,image/jpeg,image/webp" hidden>
+                </div>
+            </div>
+
             <label class="edit-label">Tên hiển thị</label>
             <input type="text" id="editAppName" class="edit-input" placeholder="Tên ứng dụng">
+
+            <!-- IPA replace -->
+            <label class="edit-label" style="margin-top:4px">Thay thế file IPA</label>
+            <div id="editIpaDropZone" style="border:2px dashed rgba(99,102,241,.25);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:20px;background:rgba(99,102,241,.03)" onclick="document.getElementById('editIpaFile').click()">
+                <div id="editIpaLabel" style="font-size:13px;color:var(--text2)">📦 Nhấn để chọn file IPA mới <span style="color:var(--text3);font-size:12px">(không bắt buộc)</span></div>
+                <input type="file" id="editIpaFile" accept=".ipa" hidden>
+            </div>
+
+            <div id="editSaveProgress" style="display:none;margin-bottom:14px">
+                <div style="font-size:12px;color:var(--text2);margin-bottom:6px" id="editProgressLabel">Đang lưu...</div>
+                <div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden">
+                    <div id="editProgressFill" style="height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);width:0%;transition:width .3s"></div>
+                </div>
+            </div>
+
             <div class="modal-btns">
-                <button class="btn-save" onclick="saveEdit()">💾 Lưu</button>
+                <button class="btn-save" id="editSaveBtn" onclick="saveEdit()">💾 Lưu</button>
                 <button class="btn-cancel" onclick="closeEdit()">Hủy</button>
             </div>
         </div>
@@ -249,7 +278,7 @@
                     </a>
                     <div class="app-card-actions">
                         <button class="app-card-btn btn-copy" onclick="copyAppLink('${esc(app.short_url)}',this)">📋 Copy link</button>
-                        <button class="app-card-btn btn-edit" onclick="openEdit(${app.id},'${esc(app.app_name)}')">✏️ Sửa</button>
+                        <button class="app-card-btn btn-edit" onclick="openEdit(${app.id},'${esc(app.app_name)}','${app.icon_base64||''}')">✏️ Sửa</button>
                         <button class="app-card-btn btn-del"  onclick="deleteApp(${app.id})">🗑</button>
                     </div>
                 </div>
@@ -270,25 +299,126 @@
         }).catch(() => alert(url));
     }
 
-    function openEdit(id, name) {
+    function openEdit(id, name, iconB64) {
         document.getElementById('editScanId').value = id;
         document.getElementById('editAppName').value = name;
+        // Reset IPA
+        document.getElementById('editIpaFile').value = '';
+        document.getElementById('editIpaLabel').innerHTML = '📦 Nhấn để chọn file IPA mới <span style="color:var(--text3);font-size:12px">(không bắt buộc)</span>';
+        document.getElementById('editIpaDropZone').style.borderColor = 'rgba(99,102,241,.25)';
+        // Show icon
+        const prev = document.getElementById('editIconPreview');
+        const fall = document.getElementById('editIconFallback');
+        if (iconB64) {
+            prev.src = 'data:image/png;base64,' + iconB64;
+            prev.style.display = 'block';
+            fall.style.display = 'none';
+        } else {
+            prev.style.display = 'none';
+            fall.style.display = 'block';
+        }
+        document.getElementById('editSaveProgress').style.display = 'none';
         document.getElementById('editModal').style.display = 'flex';
         setTimeout(() => document.getElementById('editAppName').focus(), 50);
     }
     function closeEdit() { document.getElementById('editModal').style.display = 'none'; }
 
+    // Icon preview khi chọn file
+    document.getElementById('editIconFile').addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const prev = document.getElementById('editIconPreview');
+            prev.src = e.target.result;
+            prev.style.display = 'block';
+            document.getElementById('editIconFallback').style.display = 'none';
+            document.getElementById('editIconWrap').style.borderColor = 'rgba(99,102,241,.6)';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // IPA file label
+    document.getElementById('editIpaFile').addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const mb = (file.size / 1024 / 1024).toFixed(1);
+        document.getElementById('editIpaLabel').innerHTML = `✅ <strong style="color:var(--text)">${esc(file.name)}</strong> <span style="color:var(--text3);font-size:12px">(${mb} MB)</span>`;
+        document.getElementById('editIpaDropZone').style.borderColor = 'rgba(34,197,94,.5)';
+    });
+
     async function saveEdit() {
-        const id   = document.getElementById('editScanId').value;
-        const name = document.getElementById('editAppName').value.trim();
-        if (!name) return;
-        await fetch(`/api/my/apps/${id}`, {
-            method: 'PATCH', credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ app_name: name }),
-        });
-        document.getElementById(`aname-${id}`).textContent = name;
-        closeEdit();
+        const id      = document.getElementById('editScanId').value;
+        const name    = document.getElementById('editAppName').value.trim();
+        const iconFile = document.getElementById('editIconFile').files[0];
+        const ipaFile  = document.getElementById('editIpaFile').files[0];
+        if (!name && !iconFile && !ipaFile) return;
+
+        const btn = document.getElementById('editSaveBtn');
+        const prog = document.getElementById('editSaveProgress');
+        const progFill = document.getElementById('editProgressFill');
+        const progLabel = document.getElementById('editProgressLabel');
+        btn.disabled = true;
+
+        // Nếu chỉ đổi tên, dùng JSON nhanh
+        if (!iconFile && !ipaFile) {
+            await fetch(`/api/my/apps/${id}`, {
+                method: 'PATCH', credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ app_name: name }),
+            });
+            if (name) document.getElementById(`aname-${id}`).textContent = name;
+            btn.disabled = false;
+            closeEdit();
+            return;
+        }
+
+        // Multipart upload
+        prog.style.display = 'block';
+        progLabel.textContent = ipaFile ? 'Đang tải IPA lên...' : 'Đang lưu...';
+        progFill.style.width = '20%';
+
+        const fd = new FormData();
+        if (name) fd.append('app_name', name);
+        if (iconFile) fd.append('icon', iconFile);
+        if (ipaFile)  fd.append('ipa', ipaFile);
+
+        try {
+            const xhr = new XMLHttpRequest();
+            xhr.open('PATCH', `/api/my/apps/${id}`);
+            xhr.withCredentials = true;
+            if (ipaFile) {
+                xhr.upload.onprogress = e => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round(e.loaded / e.total * 80);
+                        progFill.style.width = pct + '%';
+                        progLabel.textContent = `Đang tải lên... ${pct}%`;
+                    }
+                };
+            }
+            const result = await new Promise((res, rej) => {
+                xhr.onload = () => res(JSON.parse(xhr.responseText));
+                xhr.onerror = rej;
+                xhr.send(fd);
+            });
+            progFill.style.width = '100%';
+            progLabel.textContent = '✅ Lưu thành công!';
+            if (result.success) {
+                // Cập nhật card
+                if (result.app_name) document.getElementById(`aname-${id}`)?.textContent && (document.getElementById(`aname-${id}`).textContent = result.app_name);
+                if (result.icon_base64) {
+                    const cardIcon = document.querySelector(`#acard-${id} .app-card-icon`);
+                    if (cardIcon) cardIcon.innerHTML = `<img src="data:image/png;base64,${result.icon_base64}" style="width:56px;height:56px;border-radius:14px;object-fit:cover">`;
+                }
+                setTimeout(closeEdit, 800);
+            } else {
+                progLabel.textContent = '❌ ' + (result.error || 'Lỗi không xác định');
+            }
+        } catch(e) {
+            progLabel.textContent = '❌ Lỗi kết nối';
+        } finally {
+            btn.disabled = false;
+        }
     }
 
     async function deleteApp(id) {

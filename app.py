@@ -617,11 +617,87 @@ def api_my_app_update(scan_id):
     if not current_user.is_authenticated:
         return jsonify({'error': 'Chưa đăng nhập'}), 401
     s = Scan.query.filter_by(id=scan_id, user_id=current_user.id).first_or_404()
-    d = request.get_json() or {}
-    if 'app_name' in d:
-        s.app_name = d['app_name'][:100].strip()
+
+    # ── Cập nhật tên ──────────────────────────────────────────────────────────
+    if request.content_type and 'application/json' in request.content_type:
+        d = request.get_json() or {}
+        if 'app_name' in d:
+            s.app_name = d['app_name'][:100].strip()
+        db.session.commit()
+        return jsonify({'success': True})
+
+    # ── Multipart: icon và/hoặc IPA ───────────────────────────────────────────
+    app_name = (request.form.get('app_name') or '').strip()
+    if app_name:
+        s.app_name = app_name[:100]
+
+    # Icon upload
+    icon_file = request.files.get('icon')
+    if icon_file and icon_file.filename:
+        ext = icon_file.filename.rsplit('.', 1)[-1].lower()
+        if ext not in ('png', 'jpg', 'jpeg', 'webp'):
+            return jsonify({'error': 'Icon phải là file PNG hoặc JPG'}), 400
+        icon_bytes = icon_file.read(3 * 1024 * 1024)  # max 3MB
+        s.icon_base64 = base64.b64encode(icon_bytes).decode()
+
+    # IPA replace
+    ipa_file = request.files.get('ipa')
+    new_icon_b64 = s.icon_base64
+    if ipa_file and ipa_file.filename:
+        if not ipa_file.filename.lower().endswith('.ipa'):
+            return jsonify({'error': 'File phải có định dạng .ipa'}), 400
+        tmpdir = tempfile.mkdtemp()
+        try:
+            ipa_path = os.path.join(tmpdir, 'app.ipa')
+            ipa_file.save(ipa_path)
+            size_bytes = os.path.getsize(ipa_path)
+
+            # Re-scan
+            result = parse_ipa(ipa_path)
+
+            # Replace file on disk
+            dest = os.path.join(UPLOADS_DIR, f'{s.file_uuid}.ipa')
+            shutil.copy2(ipa_path, dest)
+
+            # Update storage quota
+            u = current_user._get_current_object()
+            old_size = s.file_size_bytes or 0
+            u.storage_used = max(0, (u.storage_used or 0) - old_size + size_bytes)
+
+            # Update scan fields
+            ai   = result.get('app_info', {})
+            prov = result.get('provision') or {}
+            certs = result.get('certificates', [])
+            s.filename        = ipa_file.filename
+            s.file_size       = format_size(size_bytes)
+            s.file_size_bytes = size_bytes
+            s.bundle_id       = ai.get('bundle_id', s.bundle_id)
+            s.version         = ai.get('version', s.version)
+            s.build           = ai.get('build', s.build)
+            s.min_os          = ai.get('min_os', s.min_os)
+            s.profile_type    = prov.get('profile_type', s.profile_type)
+            s.expiry_date     = prov.get('expiry', s.expiry_date)
+            s.days_left       = prov.get('days_left', s.days_left)
+            s.team_name       = prov.get('team_name', s.team_name)
+            s.cert_count      = len(certs)
+            s.download_count  = 0
+            if not app_name:
+                s.app_name = ai.get('display_name', s.app_name)
+            # Giữ icon custom nếu đã upload, ngược lại dùng icon từ IPA mới
+            if not icon_file or not icon_file.filename:
+                new_icon_b64 = result.get('icon_base64') or s.icon_base64
+                s.icon_base64 = new_icon_b64
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
     db.session.commit()
-    return jsonify({'success': True})
+    return jsonify({
+        'success':    True,
+        'app_name':   s.app_name,
+        'version':    s.version,
+        'file_size':  s.file_size,
+        'icon_base64': s.icon_base64 or '',
+    })
 
 
 @app.route('/api/my/apps/<int:scan_id>', methods=['DELETE'])
