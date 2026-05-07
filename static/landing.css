@@ -17,7 +17,9 @@
 html { scroll-behavior: smooth; }
 
 body {
-    font-family: 'Be Vietnam Pro', -apple-system, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'cv02','cv03','cv04','cv11';
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
