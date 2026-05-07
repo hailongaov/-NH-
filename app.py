@@ -160,7 +160,7 @@ def init_db():
 
     _default_settings = {
         'site_name':        'IPA Scanner',
-        'require_login':    'false',
+        'require_login':    'true',
         'allow_register':   'true',
         'max_upload_mb':    '500',
         'footer_text':      '© 2024 IPA Scanner',
@@ -245,6 +245,8 @@ def static_files(filename):
     if '/' not in filename and _SHORT_CODE_RE.match(filename):
         scan = Scan.query.filter_by(short_code=filename, ipa_stored=True).first()
         if scan:
+            if not current_user.is_authenticated:
+                return redirect(f'/login?next=/{filename}')
             # Check link expiry (free plan: 7 days)
             if scan.user_id:
                 owner    = User.query.get(scan.user_id)
@@ -1035,6 +1037,8 @@ def serve_manifest(uuid_plist):
 
 @app.route('/install/<file_uuid>')
 def install_page(file_uuid):
+    if not current_user.is_authenticated:
+        return redirect(f'/login?next=/install/{file_uuid}')
     if not _UUID_RE.match(file_uuid):
         return 'Invalid UUID', 400
     scan = Scan.query.filter_by(file_uuid=file_uuid, ipa_stored=True).first_or_404()

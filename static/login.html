@@ -88,7 +88,8 @@ async function doLogin() {
         });
         const data = await res.json();
         if (data.success) {
-            window.location.href = data.user.is_admin ? '/admin' : '/scan';
+            const next = new URLSearchParams(window.location.search).get('next');
+            window.location.href = next || (data.user.is_admin ? '/admin' : '/scan');
         } else {
             showErr(data.error || 'Đăng nhập thất bại');
         }
@@ -107,7 +108,10 @@ function togglePw(btn) {
     btn.textContent = inp.type === 'password' ? '👁' : '🙈';
 }
 fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).then(d => {
-    if (d.logged_in) window.location.href = d.user.is_admin ? '/admin' : '/scan';
+    if (d.logged_in) {
+        const next = new URLSearchParams(window.location.search).get('next');
+        window.location.href = next || (d.user.is_admin ? '/admin' : '/scan');
+    }
 });
 </script>
 </body>
