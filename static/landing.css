@@ -449,7 +449,10 @@ body {
     .section { padding: 68px 20px; }
     .hero-stats { padding: 16px 20px; }
     .hero-stat { padding: 0 16px; }
-    .btn-nav-cta { font-size: 13px; padding: 8px 14px; }
     .footer-top { flex-direction: column; align-items: flex-start; }
     .hero-preview { display: none; }
+    /* Navbar mobile: ẩn nút Đăng nhập, giữ nút CTA nhỏ lại */
+    .btn-ghost { display: none; }
+    .btn-nav-cta { font-size: 13px; padding: 8px 14px; white-space: nowrap; }
+    .nav-inner { padding: 0 4px; }
 }
