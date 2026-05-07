@@ -33,10 +33,11 @@ limiter = Limiter(
 # ─── Config ───────────────────────────────────────────────────────────────────
 app.config['SECRET_KEY']                  = os.environ.get('SECRET_KEY', 'CHANGE-THIS-SECRET-IN-PRODUCTION')
 _base_dir = os.path.dirname(os.path.abspath(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+_db_url = os.environ.get(
     'DATABASE_URL',
     f"sqlite:///{os.path.join(_base_dir, 'data', 'ipa_scanner.db')}"
-)
+).strip()
+app.config['SQLALCHEMY_DATABASE_URI'] = _db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH']          = int(os.environ.get('MAX_UPLOAD_MB', 500)) * 1024 * 1024
 app.config['SESSION_COOKIE_SAMESITE']     = 'Lax'
