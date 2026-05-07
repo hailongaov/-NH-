@@ -45,56 +45,6 @@ app.config['SESSION_COOKIE_SECURE']       = os.environ.get('HTTPS', 'false') == 
 
 UPLOADS_DIR = os.path.join(_base_dir, 'data', 'uploads')
 
-# ─── Cloudflare R2 ────────────────────────────────────────────────────────────
-R2_ACCOUNT_ID = os.environ.get('R2_ACCOUNT_ID', '')
-R2_ACCESS_KEY = os.environ.get('R2_ACCESS_KEY', '')
-R2_SECRET_KEY = os.environ.get('R2_SECRET_KEY', '')
-R2_BUCKET     = os.environ.get('R2_BUCKET', 'longlq')
-R2_PUBLIC_URL = os.environ.get('R2_PUBLIC_URL', '').rstrip('/')
-
-def _r2_client():
-    if not R2_ACCOUNT_ID:
-        return None
-    try:
-        import boto3
-        from botocore.client import Config
-        return boto3.client(
-            's3',
-            endpoint_url=f'https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com',
-            aws_access_key_id=R2_ACCESS_KEY,
-            aws_secret_access_key=R2_SECRET_KEY,
-            config=Config(signature_version='s3v4'),
-            region_name='auto',
-        )
-    except Exception as e:
-        print(f'[WARN] R2 client error: {e}')
-        return None
-
-def _r2_upload(src_path, key):
-    client = _r2_client()
-    if not client:
-        return False
-    try:
-        client.upload_file(src_path, R2_BUCKET, key,
-                           ExtraArgs={'ContentType': 'application/octet-stream'})
-        return True
-    except Exception as e:
-        print(f'[WARN] R2 upload {key}: {e}')
-        return False
-
-def _r2_delete(key):
-    client = _r2_client()
-    if not client:
-        return
-    try:
-        client.delete_object(Bucket=R2_BUCKET, Key=key)
-    except Exception as e:
-        print(f'[WARN] R2 delete {key}: {e}')
-
-def _r2_url(key):
-    if R2_PUBLIC_URL:
-        return f'{R2_PUBLIC_URL}/{key}'
-    return None
 
 # ─── Plan limits ──────────────────────────────────────────────────────────────
 PLAN_LIMITS = {
@@ -737,14 +687,10 @@ def scan_ipa():
         if not is_guest:
             try:
                 r2_key = f'{file_uuid}.ipa'
-                if R2_ACCOUNT_ID and _r2_upload(ipa_path, r2_key):
-                    ipa_stored = True
-                    short_code = _gen_short_code()
-                else:
-                    dest = os.path.join(UPLOADS_DIR, r2_key)
-                    shutil.copy2(ipa_path, dest)
-                    ipa_stored = True
-                    short_code = _gen_short_code()
+                dest = os.path.join(UPLOADS_DIR, r2_key)
+                shutil.copy2(ipa_path, dest)
+                ipa_stored = True
+                short_code = _gen_short_code()
             except Exception as e:
                 print(f'[WARN] could not save IPA: {e}')
 
@@ -1014,8 +960,6 @@ def _deduct_storage(scan):
 
 def _delete_ipa_file(file_uuid):
     if not file_uuid: return
-    if R2_ACCOUNT_ID:
-        _r2_delete(f'{file_uuid}.ipa')
     try:
         p = os.path.join(UPLOADS_DIR, f'{file_uuid}.ipa')
         if os.path.exists(p): os.remove(p)
@@ -1044,9 +988,6 @@ def serve_ipa(uuid_ipa):
 
     scan.download_count = (scan.download_count or 0) + 1
     db.session.commit()
-    r2 = _r2_url(f'{file_uuid}.ipa')
-    if r2:
-        return redirect(r2)
     path = os.path.join(UPLOADS_DIR, f'{file_uuid}.ipa')
     if not os.path.isfile(path):
         return jsonify({'error': 'File không còn trên máy chủ'}), 404
@@ -1061,7 +1002,7 @@ def serve_manifest(uuid_plist):
         return jsonify({'error': 'Invalid'}), 400
     scan = Scan.query.filter_by(file_uuid=file_uuid, ipa_stored=True).first_or_404()
     base_url = request.host_url.rstrip('/')
-    ipa_url = _r2_url(f'{file_uuid}.ipa') or f'{base_url}/files/{file_uuid}.ipa'
+    ipa_url = f'{base_url}/files/{file_uuid}.ipa'
     xml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
