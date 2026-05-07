@@ -183,6 +183,13 @@
 
     <script src="script.js"></script>
     <script>
+    function fmtBytes(b) {
+        if (!b) return '0 B';
+        if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+        if (b < 1024*1024*1024) return (b/1024/1024).toFixed(1) + ' MB';
+        return (b/1024/1024/1024).toFixed(2) + ' GB';
+    }
+
     let _isLoggedIn = false;
 
     fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).then(d => {
@@ -191,7 +198,9 @@
             _isLoggedIn = true;
             nav.innerHTML = `
                 ${d.user.is_admin ? '<a href="/admin" style="color:#94a3b8;text-decoration:none;font-size:13px;margin-right:12px">⚙ Admin</a>' : ''}
-                <a href="/pricing" style="color:#818cf8;text-decoration:none;font-size:13px;margin-right:12px">${d.user.plan === 'premium' ? '⭐ Premium' : '🆓 Free'}</a>
+                <a href="/pricing" style="color:#818cf8;text-decoration:none;font-size:13px;margin-right:12px">${d.user.plan === 'premium'
+                    ? `⭐ Premium${d.user.plan_expires_at ? ' · HH: ' + d.user.plan_expires_at : ''} · ${fmtBytes(d.user.storage_used||0)} / 10 GB`
+                    : `🆓 Free · ${d.user.daily_uploads_count||0}/${d.user.daily_uploads_limit} lượt hôm nay · ${fmtBytes(d.user.storage_used||0)}/${d.user.storage_label}`}</a>
                 <span style="font-size:13px;color:#7878a0;margin-right:12px">👤 ${d.user.username}</span>
                 <button onclick="logout()" style="background:none;border:1px solid rgba(255,255,255,.1);color:#7878a0;padding:5px 12px;border-radius:8px;cursor:pointer;font-size:12px">Đăng xuất</button>`;
             loadMyApps();
