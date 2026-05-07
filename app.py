@@ -48,7 +48,7 @@ UPLOADS_DIR = os.path.join(_base_dir, 'data', 'uploads')
 R2_ACCOUNT_ID = os.environ.get('R2_ACCOUNT_ID', '')
 R2_ACCESS_KEY = os.environ.get('R2_ACCESS_KEY', '')
 R2_SECRET_KEY = os.environ.get('R2_SECRET_KEY', '')
-R2_BUCKET     = os.environ.get('R2_BUCKET', 'longiq')
+R2_BUCKET     = os.environ.get('R2_BUCKET', 'longlq')
 R2_PUBLIC_URL = os.environ.get('R2_PUBLIC_URL', '').rstrip('/')
 
 def _r2_client():
