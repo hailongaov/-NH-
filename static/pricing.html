@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bảng giá — IPA Scanner</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="pricing.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="/" class="logo"><span>📦</span>IPA <strong>Scanner</strong></a>
+    <div class="nav-spacer"></div>
+    <a href="/scan" class="btn-nav btn-nav-outline" style="margin-right:8px">📦 Quét IPA</a>
+    <span id="navAuth"></span>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>⭐ Nâng cấp Premium</h1>
+  <p>Upload không giới hạn, lưu trữ 10GB, link vĩnh viễn và không giới hạn lượt tải</p>
+  <div id="planBanner" style="display:none" class="plan-banner">
+    <div class="plan-banner-text" id="planBannerText"></div>
+    <a href="/payment/history" id="btnHistory" class="btn-manage" style="display:none">Lịch sử thanh toán</a>
+  </div>
+</div>
+
+<!-- Pricing cards -->
+<div class="pricing-section">
+  <div class="cards" id="cardsWrap">
+    <!-- Free card -->
+    <div class="card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price"><sup>đ</sup>0<sub></sub></div>
+      <div class="plan-period">Miễn phí mãi mãi</div>
+      <ul class="features-list">
+        <li><span class="check">✓</span> 3 lần upload / ngày</li>
+        <li><span class="check">✓</span> Lưu trữ 500 MB</li>
+        <li><span class="check">✓</span> Link tồn tại 7 ngày</li>
+        <li><span class="check">✓</span> 100 lượt tải / link</li>
+        <li class="muted"><span class="x">✕</span> Phân tích không giới hạn</li>
+        <li class="muted"><span class="x">✕</span> Link vĩnh viễn</li>
+        <li class="muted"><span class="x">✕</span> Ưu tiên hỗ trợ</li>
+      </ul>
+      <button class="btn-plan btn-plan-current" id="btnFree" disabled>Gói hiện tại</button>
+    </div>
+
+    <!-- 3-month (popular) -->
+    <div class="card popular">
+      <div class="badge">⭐ Phổ biến nhất</div>
+      <div class="plan-name">Premium</div>
+      <div class="plan-price"><sup>đ</sup>249<sub>k</sub></div>
+      <div class="plan-period">3 tháng · <strong style="color:var(--primary)">83k/tháng</strong></div>
+      <div class="plan-save">Tiết kiệm 17% so với 1 tháng</div>
+      <ul class="features-list">
+        <li><span class="check">✓</span> Upload <strong>không giới hạn</strong></li>
+        <li><span class="check">✓</span> Lưu trữ <strong>10 GB</strong></li>
+        <li><span class="check">✓</span> Link <strong>vĩnh viễn</strong></li>
+        <li><span class="check">✓</span> Tải <strong>không giới hạn</strong></li>
+        <li><span class="check">✓</span> Phân tích không giới hạn</li>
+        <li><span class="check">✓</span> Dashboard quản lý</li>
+        <li><span class="check">✓</span> Hỗ trợ ưu tiên</li>
+      </ul>
+      <button class="btn-plan btn-plan-primary" onclick="checkout(3)" id="btn3">
+        💳 Mua 3 tháng — 249.000đ
+      </button>
+    </div>
+
+    <!-- 1-year -->
+    <div class="card">
+      <div class="plan-name">Premium</div>
+      <div class="plan-price"><sup>đ</sup>799<sub>k</sub></div>
+      <div class="plan-period">12 tháng · <strong style="color:#7C3AED">67k/tháng</strong></div>
+      <div class="plan-save">Tiết kiệm 33% — rẻ nhất</div>
+      <ul class="features-list">
+        <li><span class="check">✓</span> Upload <strong>không giới hạn</strong></li>
+        <li><span class="check">✓</span> Lưu trữ <strong>10 GB</strong></li>
+        <li><span class="check">✓</span> Link <strong>vĩnh viễn</strong></li>
+        <li><span class="check">✓</span> Tải <strong>không giới hạn</strong></li>
+        <li><span class="check">✓</span> Phân tích không giới hạn</li>
+        <li><span class="check">✓</span> Dashboard quản lý</li>
+        <li><span class="check">✓</span> Hỗ trợ ưu tiên</li>
+      </ul>
+      <button class="btn-plan btn-plan-primary" onclick="checkout(12)" id="btn12"
+              style="background:linear-gradient(135deg,#5B21B6,#7C3AED);box-shadow:0 4px 16px rgba(124,58,237,.3)">
+        💳 Mua 12 tháng — 799.000đ
+      </button>
+    </div>
+  </div>
+
+  <!-- 1-month option (smaller, below) -->
+  <div style="text-align:center;margin-top:20px">
+    <button onclick="checkout(1)" id="btn1"
+            style="background:none;border:1.5px solid var(--border);color:var(--text2);padding:10px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit"
+            onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'"
+            onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+      Thử 1 tháng — 99.000đ
+    </button>
+  </div>
+</div>
+
+<!-- Comparison table -->
+<div class="compare-section">
+  <h2>So sánh chi tiết</h2>
+  <div class="compare-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Tính năng</th>
+          <th><span class="tag-free">FREE</span></th>
+          <th><span class="tag-premium">PREMIUM</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Upload IPA / ngày</td><td>3 lần</td><td class="good">Không giới hạn</td></tr>
+        <tr><td>Lưu trữ trên server</td><td>500 MB</td><td class="good">10 GB</td></tr>
+        <tr><td>Thời hạn link tải</td><td>7 ngày</td><td class="good">Vĩnh viễn</td></tr>
+        <tr><td>Số lượt tải / link</td><td>100 lượt</td><td class="good">Không giới hạn</td></tr>
+        <tr><td>Link ngắn chia sẻ</td><td class="good">✓</td><td class="good">✓</td></tr>
+        <tr><td>Trang cài đặt OTA</td><td class="good">✓</td><td class="good">✓</td></tr>
+        <tr><td>Phân tích provisioning</td><td class="good">✓</td><td class="good">✓</td></tr>
+        <tr><td>Dashboard quản lý</td><td>—</td><td class="good">✓</td></tr>
+        <tr><td>Hỗ trợ ưu tiên</td><td>—</td><td class="good">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div style="font-size:16px;font-weight:700;color:#0F172A">Đang tạo đơn hàng...</div>
+    <div style="font-size:13px;color:#94A3B8;margin-top:8px">Vui lòng chờ trong giây lát</div>
+  </div>
+</div>
+
+<!-- Payment QR Modal -->
+<div class="modal-overlay" id="qrModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">💳 Thanh toán chuyển khoản</div>
+    <div class="modal-sub" id="qrPlanLabel"></div>
+
+    <img id="qrImg" src="" alt="QR Code" class="qr-img">
+
+    <div class="bank-info">
+      <div class="bank-row">
+        <span class="bank-label">Ngân hàng</span>
+        <span class="bank-val" id="qrBankName"></span>
+      </div>
+      <div class="bank-row">
+        <span class="bank-label">Số tài khoản</span>
+        <span class="bank-val" id="qrBankAccount"></span>
+      </div>
+      <div class="bank-row">
+        <span class="bank-label">Chủ tài khoản</span>
+        <span class="bank-val" id="qrBankOwner"></span>
+      </div>
+      <div class="bank-row highlight-row">
+        <span class="bank-label">Số tiền</span>
+        <span class="bank-val amount-val" id="qrAmount"></span>
+      </div>
+      <div class="bank-row highlight-row">
+        <span class="bank-label">Nội dung CK</span>
+        <span class="bank-val content-row">
+          <span id="qrContent"></span>
+          <button class="copy-btn" onclick="copyContent()">Sao chép</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="modal-note">⚠️ Vui lòng nhập đúng nội dung chuyển khoản để hệ thống tự động xác nhận.</div>
+
+    <div class="modal-status" id="modalStatus">
+      <span class="spinner-sm"></span> Đang chờ thanh toán...
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+let currentPlan = 'free';
+let isLoggedIn = false;
+let pollTimer = null;
+let currentOrderCode = null;
+
+// Init page
+fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).then(u => {
+    isLoggedIn = u.logged_in;
+    const navAuth = document.getElementById('navAuth');
+    if (u.logged_in) {
+        currentPlan = u.user.plan;
+        navAuth.innerHTML = `<span style="font-size:13px;font-weight:600;color:var(--text2);margin-right:8px">👤 ${u.user.username}</span>
+            ${u.user.is_admin ? '<a href="/admin" class="btn-nav btn-nav-outline" style="margin-right:8px">⚙ Admin</a>' : ''}
+            <button onclick="logout()" class="btn-nav btn-nav-outline">Đăng xuất</button>`;
+
+        const banner = document.getElementById('planBanner');
+        const bannerText = document.getElementById('planBannerText');
+        banner.style.display = 'flex';
+        document.getElementById('btnHistory').style.display = '';
+
+        if (currentPlan === 'premium') {
+            const exp = u.user.plan_expires_at ? ` · Hết hạn: ${u.user.plan_expires_at}` : ' · Không giới hạn';
+            bannerText.innerHTML = `⭐ Bạn đang dùng <strong>Premium</strong>${exp}`;
+            document.getElementById('btn3').textContent = '✅ Gia hạn 3 tháng';
+            document.getElementById('btn12').textContent = '✅ Gia hạn 12 tháng';
+            document.getElementById('btnFree').textContent = 'Gói Free';
+            document.getElementById('btn1').textContent = 'Gia hạn 1 tháng — 99.000đ';
+        } else {
+            bannerText.innerHTML = `🆓 Gói <strong>Free</strong> · ${u.user.daily_uploads_count}/${u.user.daily_uploads_limit} uploads hôm nay · Dung lượng: ${fmtBytes(u.user.storage_used)} / ${u.user.storage_label}`;
+            document.getElementById('btnFree').disabled = true;
+        }
+    } else {
+        navAuth.innerHTML = `<a href="/login" class="btn-nav btn-nav-outline" style="margin-right:8px">Đăng nhập</a><a href="/register" class="btn-nav btn-nav-primary">Đăng ký</a>`;
+    }
+});
+
+async function checkout(months) {
+    if (!isLoggedIn) {
+        window.location.href = '/login?next=/pricing';
+        return;
+    }
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('show');
+    try {
+        const res = await fetch('/api/payment/create', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ months }),
+        });
+        const data = await res.json();
+        overlay.classList.remove('show');
+        if (data.success) {
+            showQRModal(data);
+        } else {
+            showToast(data.error || 'Không thể tạo đơn hàng', 'error');
+        }
+    } catch (e) {
+        overlay.classList.remove('show');
+        showToast('Lỗi kết nối server', 'error');
+    }
+}
+
+function showQRModal(data) {
+    currentOrderCode = data.order_code;
+    const labels = { 1: '1 tháng Premium', 3: '3 tháng Premium', 12: '12 tháng Premium' };
+    document.getElementById('qrPlanLabel').textContent = labels[data.plan_months] || `${data.plan_months} tháng Premium`;
+    document.getElementById('qrImg').src = data.qr_url || '';
+    document.getElementById('qrBankName').textContent = data.bank_name || '—';
+    document.getElementById('qrBankAccount').textContent = data.bank_account || '—';
+    document.getElementById('qrBankOwner').textContent = data.bank_owner || '—';
+    document.getElementById('qrAmount').textContent = data.amount_fmt || `${data.amount}đ`;
+    document.getElementById('qrContent').textContent = data.transfer_content || '';
+    document.getElementById('modalStatus').innerHTML = '<span class="spinner-sm"></span> Đang chờ thanh toán...';
+    document.getElementById('qrModal').classList.add('show');
+    startPolling(data.order_code);
+}
+
+function closeModal() {
+    stopPolling();
+    document.getElementById('qrModal').classList.remove('show');
+}
+
+function startPolling(orderCode) {
+    stopPolling();
+    pollTimer = setInterval(async () => {
+        try {
+            const res  = await fetch(`/api/payment/check?order_code=${orderCode}`, { credentials: 'include' });
+            const data = await res.json();
+            if (data.status === 'paid') {
+                stopPolling();
+                document.getElementById('modalStatus').innerHTML = '✅ Thanh toán thành công! Đang chuyển hướng...';
+                setTimeout(() => { window.location.href = '/scan'; }, 2000);
+            } else if (data.status === 'cancelled') {
+                stopPolling();
+                document.getElementById('modalStatus').innerHTML = '❌ Đơn hàng đã bị hủy.';
+            }
+        } catch {}
+    }, 3000);
+}
+
+function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+function copyContent() {
+    const txt = document.getElementById('qrContent').textContent;
+    navigator.clipboard.writeText(txt).then(() => showToast('Đã sao chép nội dung chuyển khoản', 'success'))
+                                       .catch(() => showToast('Không thể sao chép', 'error'));
+}
+
+async function logout() {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    window.location.href = '/';
+}
+
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function fmtBytes(b) {
+    if (!b) return '0 B';
+    if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+    if (b < 1024*1024*1024) return (b/1024/1024).toFixed(1) + ' MB';
+    return (b/1024/1024/1024).toFixed(2) + ' GB';
+}
+</script>
+</body>
+</html>

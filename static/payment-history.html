@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lịch sử thanh toán — IPA Scanner</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;--border:rgba(255,255,255,.08);--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--primary:#6366f1;--green:#4ade80;--yellow:#fbbf24;--red:#f87171}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.navbar{background:rgba(15,15,26,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--text);text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:12px;font-size:13px}
+.nav-links a{color:var(--text2);text-decoration:none;transition:.2s}
+.nav-links a:hover{color:var(--text)}
+.btn-logout{background:none;border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit}
+.btn-logout:hover{border-color:var(--text3);color:var(--text)}
+.container{max-width:900px;margin:0 auto;padding:32px 24px}
+h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.subtitle{font-size:14px;color:var(--text2);margin-bottom:28px}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.panel-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-header h3{font-size:15px;font-weight:600}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:13px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-paid{background:rgba(74,222,128,.12);color:var(--green)}
+.badge-pending{background:rgba(251,191,36,.12);color:var(--yellow)}
+.badge-cancelled{background:rgba(248,113,113,.12);color:var(--red)}
+.empty{text-align:center;padding:60px 24px;color:var(--text3)}
+.empty .icon{font-size:40px;margin-bottom:12px}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--text2);text-decoration:none;font-size:13px;margin-bottom:20px;transition:.2s}
+.back-btn:hover{color:var(--primary)}
+.plan-tag{font-size:12px;color:var(--text2)}
+.amount-col{font-weight:600;color:var(--text)}
+.loading{text-align:center;padding:60px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="logo"><span>📦</span>IPA <strong>Scanner</strong></a>
+  <div class="nav-links">
+    <a href="/scan">Quét IPA</a>
+    <a href="/pricing">Gói dịch vụ</a>
+    <span id="navUser" style="color:var(--text2)"></span>
+    <button class="btn-logout" onclick="logout()">Đăng xuất</button>
+  </div>
+</nav>
+
+<div class="container">
+  <a href="/pricing" class="back-btn">← Quay lại trang gói dịch vụ</a>
+  <h1>💳 Lịch sử thanh toán</h1>
+  <p class="subtitle">Tất cả giao dịch nâng cấp Premium của bạn</p>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h3>Giao dịch</h3>
+      <span id="totalCount" style="font-size:13px;color:var(--text2)"></span>
+    </div>
+    <div id="tableWrap" class="loading">Đang tải...</div>
+  </div>
+</div>
+
+<script>
+(async () => {
+    const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => ({}));
+    if (!me.logged_in) { location.href = '/login?next=/payment/history'; return; }
+    document.getElementById('navUser').textContent = '👤 ' + me.user.username;
+
+    const res  = await fetch('/api/payment/history', { credentials: 'include' }).then(r => r.json()).catch(() => ({ payments: [] }));
+    const pmts = res.payments || [];
+    const wrap = document.getElementById('tableWrap');
+
+    document.getElementById('totalCount').textContent = `${pmts.length} giao dịch`;
+
+    if (!pmts.length) {
+        wrap.innerHTML = `<div class="empty"><div class="icon">📭</div><p>Chưa có giao dịch nào</p></div>`;
+        return;
+    }
+
+    const statusMap = {
+        paid:      '<span class="badge badge-paid">✅ Thành công</span>',
+        pending:   '<span class="badge badge-pending">⏳ Chờ thanh toán</span>',
+        cancelled: '<span class="badge badge-cancelled">❌ Đã hủy</span>',
+    };
+    const planLabel = { 1: '1 tháng', 3: '3 tháng', 12: '12 tháng' };
+
+    wrap.innerHTML = `<div class="table-wrap"><table>
+        <thead><tr>
+            <th>Mã đơn</th>
+            <th>Gói</th>
+            <th>Số tiền</th>
+            <th>Trạng thái</th>
+            <th>Ngày tạo</th>
+            <th>Ngày thanh toán</th>
+        </tr></thead>
+        <tbody>
+        ${pmts.map(p => `<tr>
+            <td><span style="font-family:monospace;font-size:12px;color:var(--text2)">IPA${p.order_code}</span></td>
+            <td><span class="plan-tag">⭐ Premium ${planLabel[p.plan_months] || p.plan_months + ' tháng'}</span></td>
+            <td class="amount-col">${p.amount_fmt}</td>
+            <td>${statusMap[p.status] || p.status}</td>
+            <td style="color:var(--text2)">${p.created_at}</td>
+            <td style="color:var(--text2)">${p.paid_at || '—'}</td>
+        </tr>`).join('')}
+        </tbody>
+    </table></div>`;
+})();
+
+async function logout() {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    location.href = '/';
+}
+</script>
+</body>
+</html>

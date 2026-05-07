@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kết quả thanh toán — IPA Scanner</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Be Vietnam Pro',-apple-system,sans-serif;background:#0f0f1a;color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:#1a1a2e;border:1px solid #2d2d4e;border-radius:24px;padding:48px 36px;max-width:440px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.icon{font-size:64px;margin-bottom:24px}
+.title{font-size:24px;font-weight:800;margin-bottom:10px}
+.desc{font-size:15px;color:#94a3b8;line-height:1.7;margin-bottom:32px}
+.plan-info{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:16px 20px;margin-bottom:28px;font-size:14px;color:#a5b4fc}
+.plan-info strong{display:block;font-size:16px;font-weight:700;margin-bottom:4px;color:#818cf8}
+.btns{display:flex;flex-direction:column;gap:12px}
+.btn{padding:14px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;box-shadow:0 4px 16px rgba(99,102,241,.35)}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-secondary{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+.btn-secondary:hover{background:#263244;color:#e2e8f0}
+.checking{color:#64748b;font-size:13px;margin-top:16px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid #334155;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="icon" id="icon">⏳</div>
+  <div class="title" id="title">Đang xác nhận thanh toán...</div>
+  <div class="desc" id="desc">Vui lòng chờ trong giây lát</div>
+  <div class="checking"><span class="spinner"></span>Đang kiểm tra giao dịch với PayOS</div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const orderCode = params.get('orderCode');
+const status    = params.get('status');
+const isCancel  = location.pathname.includes('cancel');
+
+function renderSuccess(months) {
+    document.getElementById('icon').textContent = '🎉';
+    document.getElementById('title').textContent = 'Thanh toán thành công!';
+    document.getElementById('desc').textContent = `Tài khoản của bạn đã được nâng cấp Premium ${months} tháng. Bắt đầu upload IPA không giới hạn ngay!`;
+    document.querySelector('.checking').remove();
+    const btns = document.createElement('div');
+    btns.className = 'btns';
+    btns.innerHTML = `<a href="/scan" class="btn btn-primary">🚀 Bắt đầu upload IPA</a>
+                      <a href="/pricing" class="btn btn-secondary">Xem gói của tôi</a>`;
+    document.getElementById('card').appendChild(btns);
+}
+
+function renderCancel() {
+    document.getElementById('icon').textContent = '😕';
+    document.getElementById('title').textContent = 'Thanh toán bị hủy';
+    document.getElementById('desc').textContent = 'Bạn đã hủy quá trình thanh toán. Gói của bạn chưa thay đổi.';
+    document.querySelector('.checking').remove();
+    const btns = document.createElement('div');
+    btns.className = 'btns';
+    btns.innerHTML = `<a href="/pricing" class="btn btn-primary">Thử lại</a>
+                      <a href="/scan" class="btn btn-secondary">Về trang quét IPA</a>`;
+    document.getElementById('card').appendChild(btns);
+}
+
+function renderFailed() {
+    document.getElementById('icon').textContent = '❌';
+    document.getElementById('title').textContent = 'Giao dịch thất bại';
+    document.getElementById('desc').textContent = 'Thanh toán không thành công. Vui lòng thử lại hoặc liên hệ hỗ trợ.';
+    document.querySelector('.checking').remove();
+    const btns = document.createElement('div');
+    btns.className = 'btns';
+    btns.innerHTML = `<a href="/pricing" class="btn btn-primary">Thử lại</a>
+                      <a href="/scan" class="btn btn-secondary">Về trang chính</a>`;
+    document.getElementById('card').appendChild(btns);
+}
+
+async function checkPayment() {
+    if (isCancel || status === 'CANCELLED') {
+        renderCancel();
+        return;
+    }
+    if (!orderCode) { renderFailed(); return; }
+
+    // Poll up to 10 times
+    for (let i = 0; i < 10; i++) {
+        try {
+            const res  = await fetch(`/api/payment/check?order_code=${orderCode}`, { credentials: 'include' });
+            const data = await res.json();
+            if (data.status === 'paid') {
+                renderSuccess(data.plan_months);
+                return;
+            }
+            if (data.status === 'cancelled') {
+                renderCancel();
+                return;
+            }
+        } catch {}
+        await new Promise(r => setTimeout(r, 2000));
+    }
+    // After polling, check status param from PayOS
+    if (status === 'PAID') {
+        renderSuccess(1);
+    } else {
+        renderFailed();
+    }
+}
+
+checkPayment();
+</script>
+</body>
+</html>

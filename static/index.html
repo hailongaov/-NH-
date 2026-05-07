@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPA Scanner — Phân tích chứng chỉ iOS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-inner">
+            <div class="logo">
+                <div class="logo-icon">📦</div>
+                <span>IPA <strong>Scanner</strong></span>
+            </div>
+            <div class="nav-right">
+                <span class="badge-version">v1.0</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main">
+
+        <!-- Upload Card -->
+        <section class="upload-section">
+            <div class="section-label">⬆ Upload & Phân tích</div>
+            <h1>Quét thông tin file IPA</h1>
+            <p class="subtitle">Tự động trích xuất App Info, Provisioning Profile và thông tin chứng chỉ từ file IPA iOS</p>
+
+            <div class="upload-card" id="dropZone">
+                <div class="upload-icon" id="uploadIcon">📦</div>
+                <div class="upload-text" id="uploadText">
+                    <strong>Kéo thả file IPA vào đây</strong>
+                    <span>hoặc bấm để chọn file</span>
+                </div>
+                <input type="file" id="fileInput" accept=".ipa" hidden>
+                <div class="upload-hint">Hỗ trợ file .ipa • Tối đa 500MB</div>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-wrap" id="progressWrap" style="display:none">
+                <div class="progress-info">
+                    <span id="progressLabel">Đang tải lên...</span>
+                    <span id="progressPct">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section id="results" style="display:none">
+
+            <!-- App Header -->
+            <div class="app-header-card" id="appHeader">
+                <div class="app-icon-wrap">
+                    <img id="appIcon" src="" alt="" onerror="this.style.display='none'; document.getElementById('appIconFallback').style.display='flex'">
+                    <div class="app-icon-fallback" id="appIconFallback">📱</div>
+                </div>
+                <div class="app-header-info">
+                    <div class="app-name" id="rAppName">—</div>
+                    <div class="app-bundle" id="rBundleId">—</div>
+                    <div class="app-tags" id="appTags"></div>
+                </div>
+                <div class="app-header-meta" id="appMeta"></div>
+            </div>
+
+            <!-- Download Links -->
+            <div class="result-card download-card" id="cardDownload" style="display:none">
+                <div class="card-header">
+                    <span class="card-icon">🔗</span>
+                    <h3>Link tải &amp; Cài đặt</h3>
+                </div>
+                <div class="download-links" id="downloadLinks"></div>
+            </div>
+
+            <!-- Grid -->
+            <div class="results-grid">
+
+                <!-- App Info -->
+                <div class="result-card" id="cardAppInfo">
+                    <div class="card-header">
+                        <span class="card-icon">📋</span>
+                        <h3>Thông tin ứng dụng</h3>
+                    </div>
+                    <div class="info-list" id="infoList"></div>
+                </div>
+
+                <!-- Provision -->
+                <div class="result-card" id="cardProvision">
+                    <div class="card-header">
+                        <span class="card-icon">🔐</span>
+                        <h3>Provisioning Profile</h3>
+                        <span class="profile-type-badge" id="profileTypeBadge"></span>
+                    </div>
+                    <div class="info-list" id="provList"></div>
+                    <!-- Expiry bar -->
+                    <div id="expirySection" style="display:none">
+                        <div class="expiry-bar-label">
+                            <span>Thời hạn còn lại</span>
+                            <span id="expiryDaysLabel"></span>
+                        </div>
+                        <div class="expiry-bar">
+                            <div class="expiry-fill" id="expiryFill"></div>
+                        </div>
+                    </div>
+                    <!-- Entitlements -->
+                    <div id="entitlementsSection" style="display:none">
+                        <div class="sub-section-title">Entitlements</div>
+                        <div class="entitlements-list" id="entitlementsList"></div>
+                    </div>
+                    <!-- Devices -->
+                    <div id="devicesSection" style="display:none">
+                        <div class="sub-section-title">Thiết bị được cấp phép (<span id="deviceCountLabel">0</span>)</div>
+                        <div class="devices-list" id="devicesList"></div>
+                    </div>
+                </div>
+
+                <!-- Certificates -->
+                <div class="result-card full-width" id="cardCerts">
+                    <div class="card-header">
+                        <span class="card-icon">🏆</span>
+                        <h3>Developer Certificates</h3>
+                        <span class="cert-count" id="certCount">0</span>
+                    </div>
+                    <div id="certsList"></div>
+                </div>
+
+            </div>
+
+            <!-- Raw JSON toggle -->
+            <details class="raw-json-details">
+                <summary>📄 Xem dữ liệu thô (JSON)</summary>
+                <pre id="rawJson" class="raw-json"></pre>
+            </details>
+
+        </section>
+
+        <!-- Error -->
+        <div class="error-box" id="errorBox" style="display:none">
+            <span class="error-icon">⚠️</span>
+            <div>
+                <strong>Lỗi phân tích</strong>
+                <p id="errorMsg"></p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <span>IPA Scanner · Phân tích chứng chỉ iOS</span>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPA Scanner — Quét file IPA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-inner">
+            <a href="/" class="logo" style="text-decoration:none">
+                <div class="logo-icon">📦</div>
+                <span>IPA <strong>Scanner</strong></span>
+            </a>
+            <div class="nav-right" id="navRight">
+                <span class="badge-version">v1.0</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container main">
+
+        <!-- Upload Card -->
+        <section class="upload-section">
+            <div class="section-label">⬆ Upload & Phân tích</div>
+            <h1>Quét thông tin file IPA</h1>
+            <p class="subtitle">Tự động trích xuất App Info, Provisioning Profile và thông tin chứng chỉ từ file IPA iOS</p>
+
+            <div class="upload-card" id="dropZone">
+                <div class="upload-icon" id="uploadIcon">📦</div>
+                <div class="upload-text" id="uploadText">
+                    <strong>Kéo thả file IPA vào đây</strong>
+                    <span>hoặc bấm để chọn file</span>
+                </div>
+                <input type="file" id="fileInput" accept=".ipa" hidden>
+                <div class="upload-hint">Hỗ trợ file .ipa • Tối đa 500MB</div>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-wrap" id="progressWrap" style="display:none">
+                <div class="progress-info">
+                    <span id="progressLabel">Đang tải lên...</span>
+                    <span id="progressPct">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section id="results" style="display:none">
+
+            <!-- App Header -->
+            <div class="app-header-card" id="appHeader">
+                <div class="app-icon-wrap">
+                    <img id="appIcon" src="" alt="" onerror="this.style.display='none'; document.getElementById('appIconFallback').style.display='flex'">
+                    <div class="app-icon-fallback" id="appIconFallback">📱</div>
+                </div>
+                <div class="app-header-info">
+                    <div class="app-name" id="rAppName">—</div>
+                    <div class="app-bundle" id="rBundleId">—</div>
+                    <div class="app-tags" id="appTags"></div>
+                </div>
+                <div class="app-header-meta" id="appMeta"></div>
+            </div>
+
+            <!-- Download Links -->
+            <div class="result-card download-card" id="cardDownload" style="display:none">
+                <div class="card-header">
+                    <span class="card-icon">🔗</span>
+                    <h3>Link tải &amp; Cài đặt</h3>
+                </div>
+                <div class="download-links" id="downloadLinks"></div>
+            </div>
+
+            <!-- Grid -->
+            <div class="results-grid">
+
+                <!-- App Info -->
+                <div class="result-card" id="cardAppInfo">
+                    <div class="card-header">
+                        <span class="card-icon">📋</span>
+                        <h3>Thông tin ứng dụng</h3>
+                    </div>
+                    <div class="info-list" id="infoList"></div>
+                </div>
+
+                <!-- Provision -->
+                <div class="result-card" id="cardProvision">
+                    <div class="card-header">
+                        <span class="card-icon">🔐</span>
+                        <h3>Provisioning Profile</h3>
+                        <span class="profile-type-badge" id="profileTypeBadge"></span>
+                    </div>
+                    <div class="info-list" id="provList"></div>
+                    <!-- Expiry bar -->
+                    <div id="expirySection" style="display:none">
+                        <div class="expiry-bar-label">
+                            <span>Thời hạn còn lại</span>
+                            <span id="expiryDaysLabel"></span>
+                        </div>
+                        <div class="expiry-bar">
+                            <div class="expiry-fill" id="expiryFill"></div>
+                        </div>
+                    </div>
+                    <!-- Entitlements -->
+                    <div id="entitlementsSection" style="display:none">
+                        <div class="sub-section-title">Entitlements</div>
+                        <div class="entitlements-list" id="entitlementsList"></div>
+                    </div>
+                    <!-- Devices -->
+                    <div id="devicesSection" style="display:none">
+                        <div class="sub-section-title">Thiết bị được cấp phép (<span id="deviceCountLabel">0</span>)</div>
+                        <div class="devices-list" id="devicesList"></div>
+                    </div>
+                </div>
+
+                <!-- Certificates -->
+                <div class="result-card full-width" id="cardCerts">
+                    <div class="card-header">
+                        <span class="card-icon">🏆</span>
+                        <h3>Developer Certificates</h3>
+                        <span class="cert-count" id="certCount">0</span>
+                    </div>
+                    <div id="certsList"></div>
+                </div>
+
+            </div>
+
+            <!-- Raw JSON toggle -->
+            <details class="raw-json-details">
+                <summary>📄 Xem dữ liệu thô (JSON)</summary>
+                <pre id="rawJson" class="raw-json"></pre>
+            </details>
+
+        </section>
+
+        <!-- Error -->
+        <div class="error-box" id="errorBox" style="display:none">
+            <span class="error-icon">⚠️</span>
+            <div>
+                <strong>Lỗi phân tích</strong>
+                <p id="errorMsg"></p>
+            </div>
+        </div>
+
+        <!-- My Apps -->
+        <section id="myAppsSection" style="display:none;margin-top:32px">
+            <div class="my-apps-header">
+                <h2 class="my-apps-title">📦 Ứng dụng của tôi</h2>
+                <span class="my-apps-count" id="myAppsCount"></span>
+            </div>
+            <div class="my-apps-grid" id="myAppsGrid"></div>
+        </section>
+
+    </main>
+
+    <!-- Edit Modal -->
+    <div class="modal-bg" id="editModal" style="display:none" onclick="if(event.target===this)closeEdit()">
+        <div class="modal-box">
+            <div class="modal-title">✏️ Chỉnh sửa ứng dụng</div>
+            <input type="hidden" id="editScanId">
+            <label class="edit-label">Tên hiển thị</label>
+            <input type="text" id="editAppName" class="edit-input" placeholder="Tên ứng dụng">
+            <div class="modal-btns">
+                <button class="btn-save" onclick="saveEdit()">💾 Lưu</button>
+                <button class="btn-cancel" onclick="closeEdit()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <span>IPA Scanner · Phân tích chứng chỉ iOS</span>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+    let _isLoggedIn = false;
+
+    fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).then(d => {
+        const nav = document.getElementById('navRight');
+        if (d.logged_in) {
+            _isLoggedIn = true;
+            nav.innerHTML = `
+                ${d.user.is_admin ? '<a href="/admin" style="color:#94a3b8;text-decoration:none;font-size:13px;margin-right:12px">⚙ Admin</a>' : ''}
+                <a href="/pricing" style="color:#818cf8;text-decoration:none;font-size:13px;margin-right:12px">${d.user.plan === 'premium' ? '⭐ Premium' : '🆓 Free'}</a>
+                <span style="font-size:13px;color:#7878a0;margin-right:12px">👤 ${d.user.username}</span>
+                <button onclick="logout()" style="background:none;border:1px solid rgba(255,255,255,.1);color:#7878a0;padding:5px 12px;border-radius:8px;cursor:pointer;font-size:12px">Đăng xuất</button>`;
+            loadMyApps();
+        } else {
+            nav.innerHTML = `<a href="/login" style="color:#7878a0;text-decoration:none;font-size:13px;margin-right:12px">Đăng nhập</a><a href="/register" style="background:rgba(99,102,241,.2);color:#818cf8;text-decoration:none;font-size:13px;padding:5px 12px;border-radius:8px">Đăng ký</a>`;
+        }
+    }).catch(() => {});
+
+    async function logout() {
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+        window.location.href = '/';
+    }
+
+    // ── My Apps ──────────────────────────────────────────────────────────────
+    async function loadMyApps() {
+        try {
+            const res  = await fetch('/api/my/apps', { credentials: 'include' });
+            const data = await res.json();
+            if (!data.apps || data.apps.length === 0) return;
+            renderMyApps(data.apps);
+        } catch {}
+    }
+
+    function renderMyApps(apps) {
+        const sec   = document.getElementById('myAppsSection');
+        const grid  = document.getElementById('myAppsGrid');
+        const count = document.getElementById('myAppsCount');
+        sec.style.display = '';
+        count.textContent = `${apps.length} ứng dụng`;
+        grid.innerHTML = apps.map(app => {
+            const iconHtml = app.icon_base64
+                ? `<img src="data:image/png;base64,${app.icon_base64}" onerror="this.parentElement.textContent='📱'" style="width:56px;height:56px;border-radius:14px;object-fit:cover">`
+                : '📱';
+            const ptColor = app.profile_type.includes('Enterprise') ? '#FF9500'
+                          : app.profile_type.includes('Ad Hoc')     ? '#34C759' : '#60a5fa';
+            return `<div class="app-card" id="acard-${app.id}">
+                <div class="app-card-icon">${iconHtml}</div>
+                <div class="app-card-body">
+                    <div class="app-card-name" id="aname-${app.id}">${esc(app.app_name)}</div>
+                    <div class="app-card-meta">
+                        v${esc(app.version)} · ${esc(app.file_size)}
+                        ${app.profile_type ? `<span style="margin-left:6px;font-size:11px;font-weight:600;color:${ptColor}">${esc(app.profile_type)}</span>` : ''}
+                    </div>
+                    <a class="app-card-link" href="${esc(app.short_url)}" target="_blank" title="${esc(app.short_url)}">
+                        🔗 ${esc(app.short_url)}
+                    </a>
+                    <div class="app-card-actions">
+                        <button class="app-card-btn btn-copy" onclick="copyAppLink('${esc(app.short_url)}',this)">📋 Copy link</button>
+                        <button class="app-card-btn btn-edit" onclick="openEdit(${app.id},'${esc(app.app_name)}')">✏️ Sửa</button>
+                        <button class="app-card-btn btn-del"  onclick="deleteApp(${app.id})">🗑</button>
+                    </div>
+                </div>
+                <div class="app-card-dl">⬇ ${app.download_count}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+    function copyAppLink(url, btn) {
+        navigator.clipboard.writeText(url).then(() => {
+            const orig = btn.textContent;
+            btn.textContent = '✅ Đã copy';
+            btn.style.background = 'rgba(34,197,94,.15)';
+            btn.style.color = '#4ade80';
+            setTimeout(() => { btn.textContent = orig; btn.style.background = ''; btn.style.color = ''; }, 1800);
+        }).catch(() => alert(url));
+    }
+
+    function openEdit(id, name) {
+        document.getElementById('editScanId').value = id;
+        document.getElementById('editAppName').value = name;
+        document.getElementById('editModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('editAppName').focus(), 50);
+    }
+    function closeEdit() { document.getElementById('editModal').style.display = 'none'; }
+
+    async function saveEdit() {
+        const id   = document.getElementById('editScanId').value;
+        const name = document.getElementById('editAppName').value.trim();
+        if (!name) return;
+        await fetch(`/api/my/apps/${id}`, {
+            method: 'PATCH', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ app_name: name }),
+        });
+        document.getElementById(`aname-${id}`).textContent = name;
+        closeEdit();
+    }
+
+    async function deleteApp(id) {
+        if (!confirm('Xóa ứng dụng này? Link tải sẽ không còn hoạt động.')) return;
+        const res = await fetch(`/api/my/apps/${id}`, { method: 'DELETE', credentials: 'include' });
+        if ((await res.json()).success) {
+            const el = document.getElementById(`acard-${id}`);
+            if (el) el.remove();
+            const grid = document.getElementById('myAppsGrid');
+            if (!grid.children.length) document.getElementById('myAppsSection').style.display = 'none';
+        }
+    }
+
+    // Reload my apps after successful upload
+    document.addEventListener('ipa-uploaded', loadMyApps);
+    </script>
+</body>
+</html>
