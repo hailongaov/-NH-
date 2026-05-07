@@ -11,6 +11,7 @@ except ImportError:
     pass
 
 from flask import Flask, request, jsonify, send_from_directory, send_file, Response, redirect, url_for, session
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_login import LoginManager, login_user, logout_user, current_user
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -19,6 +20,7 @@ from authlib.integrations.flask_client import OAuth
 from models import db, User, Scan, Setting, Payment
 
 app = Flask(__name__, static_folder='static')
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 CORS(app, supports_credentials=True)
 
 # ─── Rate Limiter (chống DDoS / brute-force) ──────────────────────────────────
