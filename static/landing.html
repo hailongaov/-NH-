@@ -4,132 +4,217 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IPA Scanner — Phân tích & Phân phối IPA iOS</title>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="landing.css">
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar">
+<nav class="navbar" id="navbar">
   <div class="nav-inner">
-    <a href="/" class="logo"><span class="logo-icon">📦</span>IPA <strong>Scanner</strong></a>
+    <a href="/" class="logo">
+      <div class="logo-box">📦</div>
+      IPA <strong>Scanner</strong>
+    </a>
     <div class="nav-links">
       <a href="#features">Tính năng</a>
       <a href="#how-it-works">Cách dùng</a>
-      <a href="/scan">Quét IPA</a>
       <a href="/pricing">Bảng giá</a>
     </div>
     <div class="nav-actions" id="navActions">
-      <a href="/login" class="btn-outline">Đăng nhập</a>
-      <a href="/register" class="btn-primary">Đăng ký miễn phí</a>
+      <a href="/login" class="btn-ghost">Đăng nhập</a>
+      <a href="/register" class="btn-nav-cta">Dùng miễn phí →</a>
     </div>
   </div>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
-  <div class="hero-content">
-    <div class="hero-badge">🔐 Hỗ trợ Enterprise &amp; Ad Hoc IPA</div>
-    <h1>Phân tích &amp; Phân phối<br><span>File IPA iOS</span></h1>
-    <p class="hero-sub">Tự động trích xuất thông tin chứng chỉ, tạo link tải trực tiếp và cài đặt OTA lên iPhone/iPad — không cần jailbreak.</p>
-    <div class="hero-btns">
-      <a href="/scan" class="btn-hero-primary">🚀 Bắt đầu ngay</a>
-      <a href="#how-it-works" class="btn-hero-outline">Tìm hiểu thêm</a>
+  <div class="hero-glow hero-glow-1"></div>
+  <div class="hero-glow hero-glow-2"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Hỗ trợ Enterprise · Ad Hoc · Development
     </div>
+
+    <h1 class="hero-title">
+      Phân tích &amp; Phân phối<br>
+      <span class="gradient-text">File IPA iOS</span>
+    </h1>
+
+    <p class="hero-sub">
+      Tự động trích xuất thông tin chứng chỉ, tạo link OTA cài đặt trực tiếp lên iPhone/iPad.<br>
+      Không cần jailbreak. Không cần máy tính.
+    </p>
+
+    <div class="hero-btns">
+      <a href="/scan" class="btn-cta-primary">
+        <span>🚀</span> Bắt đầu ngay — Miễn phí
+      </a>
+      <a href="#how-it-works" class="btn-cta-ghost">Xem cách hoạt động ↓</a>
+    </div>
+
     <div class="hero-stats">
-      <div class="hero-stat"><strong>IPA</strong><span>Phân tích tự động</span></div>
-      <div class="hero-stat"><strong>OTA</strong><span>Cài đặt trực tiếp</span></div>
-      <div class="hero-stat"><strong>Enterprise</strong><span>Chứng chỉ doanh nghiệp</span></div>
+      <div class="hero-stat">
+        <div class="stat-value">IPA</div>
+        <div class="stat-label">Phân tích tự động</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="hero-stat">
+        <div class="stat-value">OTA</div>
+        <div class="stat-label">Cài đặt trực tiếp</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="hero-stat">
+        <div class="stat-value">SSL</div>
+        <div class="stat-label">Bảo mật HTTPS</div>
+      </div>
+    </div>
+
+    <!-- Mock card preview -->
+    <div class="hero-preview">
+      <div class="preview-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="preview-url">ipacc.site/scan</span>
+      </div>
+      <div class="preview-body">
+        <div class="preview-row">
+          <div class="preview-icon-box">📱</div>
+          <div class="preview-info">
+            <div class="preview-app-name">MyApp.ipa</div>
+            <div class="preview-app-meta">v2.1.0 · Enterprise · 45.2 MB</div>
+          </div>
+          <div class="preview-badge">✓ Hợp lệ</div>
+        </div>
+        <div class="preview-divider"></div>
+        <div class="preview-link-row">
+          <span class="preview-link-label">🔗 Link OTA</span>
+          <span class="preview-link-val">ipacc.site/ab3x</span>
+          <span class="preview-copy">Copy</span>
+        </div>
+        <div class="preview-link-row" style="margin-top:8px">
+          <span class="preview-link-label">⬇ Lượt tải</span>
+          <span class="preview-link-val" style="color:#86efac">127 lượt</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- Features -->
-<section class="section features" id="features">
+<section class="section" id="features">
   <div class="section-inner">
     <div class="section-header">
-      <div class="section-label">Công cụ mạnh mẽ</div>
-      <h2 class="section-title">Tính Năng Nổi Bật</h2>
-      <p class="section-sub">Mọi thứ bạn cần để quản lý và phân phối ứng dụng iOS nội bộ</p>
+      <div class="section-pill">✦ Tính năng</div>
+      <h2 class="section-title">Mọi thứ bạn cần</h2>
+      <p class="section-sub">Công cụ chuyên nghiệp để quản lý và phân phối ứng dụng iOS nội bộ</p>
     </div>
+
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon">⬆</div>
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(99,102,241,.08));border-color:rgba(99,102,241,.25)">
+          <span>⬆</span>
+        </div>
         <div class="feature-title">Tải lên đơn giản</div>
-        <p class="feature-desc">Kéo thả file IPA của bạn. Hệ thống tự động phân tích và tạo link cài đặt trong vài giây.</p>
+        <p class="feature-desc">Kéo thả file IPA. Hệ thống tự động phân tích và tạo link cài đặt trong vài giây.</p>
+        <div class="feature-glow" style="background:radial-gradient(circle at 50% 100%,rgba(99,102,241,.12),transparent 70%)"></div>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon">⚡</div>
-        <div class="feature-title">Cài đặt nhanh chóng</div>
-        <p class="feature-desc">Người dùng chỉ cần mở link trên Safari và nhấn cài đặt. Không cần jailbreak, không cần máy tính.</p>
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(34,197,94,.06));border-color:rgba(34,197,94,.25)">
+          <span>⚡</span>
+        </div>
+        <div class="feature-title">Cài đặt OTA nhanh</div>
+        <p class="feature-desc">Người dùng mở link trên Safari và nhấn cài. Không jailbreak, không UDID, không máy tính.</p>
+        <div class="feature-glow" style="background:radial-gradient(circle at 50% 100%,rgba(34,197,94,.1),transparent 70%)"></div>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">Quản lý dễ dàng</div>
-        <p class="feature-desc">Theo dõi lịch sử quét, quản lý phiên bản và xem thống kê ứng dụng mọi lúc.</p>
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(59,130,246,.06));border-color:rgba(59,130,246,.25)">
+          <span>📊</span>
+        </div>
+        <div class="feature-title">Theo dõi lượt tải</div>
+        <p class="feature-desc">Thống kê số lượt tải theo từng link, quản lý lịch sử phiên bản và ứng dụng mọi lúc.</p>
+        <div class="feature-glow" style="background:radial-gradient(circle at 50% 100%,rgba(59,130,246,.1),transparent 70%)"></div>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon">🌐</div>
-        <div class="feature-title">Tải xuống nhanh</div>
-        <p class="feature-desc">Link tải trực tiếp ổn định, tối ưu tốc độ tải xuống, chịu tải tốt kể cả nhiều người dùng cùng lúc.</p>
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.06));border-color:rgba(245,158,11,.25)">
+          <span>🔐</span>
+        </div>
+        <div class="feature-title">Phân tích chứng chỉ</div>
+        <p class="feature-desc">Kiểm tra provisioning profile, ngày hết hạn cert, entitlements và danh sách thiết bị tự động.</p>
+        <div class="feature-glow" style="background:radial-gradient(circle at 50% 100%,rgba(245,158,11,.1),transparent 70%)"></div>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon">🛡</div>
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.06));border-color:rgba(239,68,68,.25)">
+          <span>🛡</span>
+        </div>
         <div class="feature-title">Bảo mật cao</div>
-        <p class="feature-desc">Kiểm tra chứng chỉ IPA tự động, phân tích provisioning profile và theo dõi ngày hết hạn.</p>
+        <p class="feature-desc">HTTPS toàn bộ, xác thực người dùng, rate limiting chống DDoS và brute-force.</p>
+        <div class="feature-glow" style="background:radial-gradient(circle at 50% 100%,rgba(239,68,68,.1),transparent 70%)"></div>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon">💎</div>
-        <div class="feature-title">Miễn phí</div>
-        <p class="feature-desc">Sử dụng miễn phí với giới hạn hợp lý. Nâng cấp khi cần thiết để có thêm dung lượng và tính năng.</p>
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(139,92,246,.08));border-color:rgba(139,92,246,.25)">
+          <span>💎</span>
+        </div>
+        <div class="feature-title">Free & Premium</div>
+        <p class="feature-desc">Dùng miễn phí với giới hạn hợp lý. Nâng cấp Premium để có link vĩnh viễn và dung lượng lớn hơn.</p>
+        <div class="feature-glow" style="background:radial-gradient(circle at 50% 100%,rgba(139,92,246,.12),transparent 70%)"></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA Banner -->
-<div class="cta-banner-wrap">
-  <div class="section-inner">
-    <div class="cta-banner">
-      <div class="cta-banner-text">
-        <div class="cta-banner-icon">🛡</div>
-        <div>
-          <div class="cta-banner-title">Sign IPA với Chứng chỉ Doanh Nghiệp</div>
-          <div class="cta-banner-sub">Cài đặt trực tiếp trên mọi iPhone/iPad — không jailbreak, không UDID, xử lý trong vài giờ.</div>
-        </div>
-      </div>
-      <a href="/scan" class="btn-cta">📲 Liên hệ ngay</a>
-    </div>
-  </div>
-</div>
-
 <!-- How it works -->
-<section class="section" id="how-it-works" style="background:var(--bg2)">
+<section class="section section-alt" id="how-it-works">
   <div class="section-inner">
     <div class="section-header">
-      <div class="section-label">Đơn giản 3 bước</div>
-      <h2 class="section-title">Cách Hoạt Động</h2>
-      <p class="section-sub">Từ file IPA đến link cài đặt chỉ trong vài phút</p>
+      <div class="section-pill">✦ Quy trình</div>
+      <h2 class="section-title">Chỉ 3 bước đơn giản</h2>
+      <p class="section-sub">Từ file IPA đến link cài đặt OTA trong vài phút</p>
     </div>
+
     <div class="steps-row">
-      <div class="step">
-        <div class="step-num">1</div>
+      <div class="step-card">
+        <div class="step-num">01</div>
         <div class="step-icon">👤</div>
         <div class="step-title">Đăng nhập</div>
-        <p class="step-desc">Sử dụng tài khoản Google hoặc đăng ký tài khoản mới để bắt đầu sử dụng dịch vụ.</p>
+        <p class="step-desc">Tạo tài khoản miễn phí hoặc đăng nhập Google. Không cần thẻ tín dụng.</p>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
+      <div class="step-arrow">→</div>
+      <div class="step-card">
+        <div class="step-num">02</div>
         <div class="step-icon">⬆</div>
-        <div class="step-title">Tải lên IPA</div>
-        <p class="step-desc">Kéo thả file IPA đã ký chứng chỉ của bạn vào dashboard. Hệ thống tự động phân tích.</p>
+        <div class="step-title">Upload IPA</div>
+        <p class="step-desc">Kéo thả file IPA đã ký vào dashboard. Hệ thống tự động phân tích chứng chỉ.</p>
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
+      <div class="step-arrow">→</div>
+      <div class="step-card">
+        <div class="step-num">03</div>
         <div class="step-icon">🔗</div>
         <div class="step-title">Chia sẻ link</div>
-        <p class="step-desc">Sao chép link tải hoặc link OTA và gửi cho người dùng để cài đặt trực tiếp.</p>
+        <p class="step-desc">Copy link OTA và gửi cho người dùng. Họ mở Safari và nhấn cài đặt là xong.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section-cta">
+  <div class="cta-glow"></div>
+  <div class="section-inner cta-inner">
+    <div class="cta-badge">🛡 Enterprise Ready</div>
+    <h2 class="cta-title">Sẵn sàng phân phối IPA?</h2>
+    <p class="cta-sub">Đăng ký miễn phí ngay hôm nay. Không cần thẻ tín dụng.</p>
+    <div class="cta-btns">
+      <a href="/register" class="btn-cta-primary">Tạo tài khoản miễn phí</a>
+      <a href="/scan" class="btn-cta-ghost">Quét IPA ngay →</a>
     </div>
   </div>
 </section>
@@ -137,38 +222,47 @@
 <!-- Footer -->
 <footer class="footer">
   <div class="footer-inner">
-    <a href="/" class="footer-logo"><span>📦</span>IPA <strong>Scanner</strong></a>
-    <div class="footer-links">
-      <a href="/scan">Quét IPA</a>
-      <a href="/login">Đăng nhập</a>
-      <a href="/register">Đăng ký</a>
-      <a href="/admin">Admin</a>
+    <div class="footer-top">
+      <a href="/" class="footer-logo">
+        <div class="logo-box small">📦</div>
+        IPA <strong>Scanner</strong>
+      </a>
+      <div class="footer-links">
+        <a href="/scan">Quét IPA</a>
+        <a href="/pricing">Bảng giá</a>
+        <a href="/login">Đăng nhập</a>
+        <a href="/register">Đăng ký</a>
+      </div>
     </div>
-    <div class="footer-copy" id="footerCopy">© 2024 IPA Scanner · Phân tích chứng chỉ iOS</div>
+    <div class="footer-divider"></div>
+    <div class="footer-copy" id="footerCopy">© 2025 IPA Scanner · Phân tích &amp; Phân phối IPA iOS</div>
   </div>
 </footer>
 
 <script>
-// Update navbar based on login state
 fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).then(d => {
+    if (!d.logged_in) return;
     const actions = document.getElementById('navActions');
-    if (d.logged_in) {
-        actions.innerHTML = `
-            <a href="/scan" class="btn-outline">📦 Quét IPA</a>
-            ${d.user.is_admin ? '<a href="/admin" class="btn-outline">⚙ Admin</a>' : ''}
-            <div class="nav-user">
-                <div class="nav-user-avatar">${d.user.username[0].toUpperCase()}</div>
-                <span>${d.user.username}</span>
-            </div>`;
-    }
+    actions.innerHTML = `
+        <a href="/scan" class="btn-ghost">📦 Quét IPA</a>
+        ${d.user.is_admin ? '<a href="/admin" class="btn-ghost">⚙ Admin</a>' : ''}
+        <div class="nav-user">
+            <div class="nav-avatar">${d.user.username[0].toUpperCase()}</div>
+            <span>${d.user.username}</span>
+        </div>`;
 }).catch(() => {});
 
-// Footer text
 fetch('/api/admin/settings').then(r => r.json()).then(d => {
     if (d.footer_text) document.getElementById('footerCopy').textContent = d.footer_text;
 }).catch(() => {});
 
-// Smooth scroll for anchor links
+// Navbar scroll effect
+const nav = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
         e.preventDefault();
