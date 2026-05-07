@@ -680,7 +680,6 @@ def api_my_app_update(scan_id):
             s.days_left       = prov.get('days_left', s.days_left)
             s.team_name       = prov.get('team_name', s.team_name)
             s.cert_count      = len(certs)
-            s.download_count  = 0
             if not app_name:
                 s.app_name = ai.get('display_name', s.app_name)
             # Giữ icon custom nếu đã upload, ngược lại dùng icon từ IPA mới
