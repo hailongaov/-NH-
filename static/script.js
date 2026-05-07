@@ -47,14 +47,32 @@ function upload(file) {
 
     const xhr = new XMLHttpRequest();
 
+    let _processingTimer = null;
+
     xhr.upload.addEventListener('progress', e => {
         if (e.lengthComputable) {
             const pct = Math.round(e.loaded / e.total * 80);
             setProgress(pct, `Đang tải lên... ${formatSize(e.loaded)} / ${formatSize(e.total)}`);
+            if (e.loaded === e.total) {
+                // Upload xong, server bắt đầu xử lý — animate progress từ 80 → 94
+                let cur = 80;
+                const labels = ['Đang giải nén IPA...', 'Đang đọc thông tin ứng dụng...', 'Đang tải lên cloud...', 'Hoàn tất, chờ kết quả...'];
+                let li = 0;
+                _processingTimer = setInterval(() => {
+                    if (cur < 94) {
+                        cur += cur < 88 ? 2 : 0.5;
+                        if (cur >= 82 && li === 0) li = 1;
+                        if (cur >= 87 && li === 1) li = 2;
+                        if (cur >= 92 && li === 2) li = 3;
+                        setProgress(Math.min(Math.round(cur), 94), labels[li]);
+                    }
+                }, 600);
+            }
         }
     });
 
     xhr.addEventListener('load', () => {
+        if (_processingTimer) { clearInterval(_processingTimer); _processingTimer = null; }
         setProgress(95, 'Đang phân tích IPA...');
         try {
             const data = JSON.parse(xhr.responseText);
