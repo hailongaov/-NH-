@@ -253,7 +253,7 @@
                         <button class="app-card-btn btn-del"  onclick="deleteApp(${app.id})">🗑</button>
                     </div>
                 </div>
-                <div class="app-card-dl">⬇ ${app.download_count}</div>
+                <div class="app-card-dl" title="Lượt tải xuống">⬇ ${app.download_count.toLocaleString()} lượt</div>
             </div>`;
         }).join('');
     }

@@ -1180,6 +1180,10 @@ body{{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans
       <span class="info-label"><span class="ico">🏷</span> Phiên bản</span>
       <span class="info-value">{scan.version or '—'} (Build {scan.build or '—'})</span>
     </div>
+    <div class="info-item">
+      <span class="info-label"><span class="ico">⬇</span> Lượt tải</span>
+      <span class="info-value">{scan.download_count or 0:,} lượt</span>
+    </div>
     <div class="copy-row" onclick="copyLink('{short_url}')">
       <span class="info-label"><span class="ico">🔗</span></span>
       <span class="copy-link">{short_url}</span>
